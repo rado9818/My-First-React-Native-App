@@ -1,6 +1,7 @@
 import React from 'react';
 import {moviesUrl, key} from './Constants';
 import PropTypes from 'prop-types';
+import {sortBy} from 'lodash';
 const util = require('util');
 //import ThirdActivity from './app/ThirdActivity';
 
@@ -34,10 +35,12 @@ export default class SecondActivity extends React.Component {
     console.log(key);
     this.removeItem = this.removeItem.bind(this);
     this.searchValue = this.searchValue.bind(this);
+    this.onSort = this.onSort.bind(this);
   }
 
 
   componentDidMount(){
+    this.setState({isLoading: true})
     return fetch(moviesUrl)
       .then((response) => response.json())
       .then((responseJson) => {
@@ -67,8 +70,13 @@ function isNotName(item){
   list = updatedList;
 }
 
-
-
+onSort(list, key, reverse){
+  if(reverse){
+    return sortBy(list, key).reverse();
+  }else{
+    return sortBy(list, key);
+  }
+}
 
 searchValue(event){
   console.log(event);
@@ -97,6 +105,8 @@ searchValue(event){
         />
 
         <TableComponent
+          sortKey="title"
+          onSort={this.onSort}
           removeItem={this.removeItem}
           state={this.state}/>
 
@@ -132,13 +142,26 @@ class SearchText extends React.Component{
 }
 
 
+class Loading extends React.Component{
+
+  render(){
+    const {onChangeText} = this.props;
+      return (
+       <View><Text>Loading...</Text></View>
+      )
+  }
+}
+
 
 
 class TableComponent extends React.Component{
   render(){
-    const {onChangeText, removeItem, state} = this.props;
+    const {onChangeText, removeItem, state, sortKey, onSort} = this.props;
+      state.dataSource = onSort(state.dataSource, sortKey, false);
 
       return (
+
+        state.isLoading ? <Loading/> :
         <FlatList
           data={state.dataSource}
           renderItem={({item}) => <View><Text>{item.title}, {item.releaseYear}</Text>
@@ -171,4 +194,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+})

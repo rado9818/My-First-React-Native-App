@@ -25,9 +25,7 @@ export default class ThirdActivity extends React.Component {
     return (
       <View style={styles.container}>
         <Text>Third Activity! {params.name}</Text>
-        <Image source={{uri: 'https://facebook.github.io/react/logo-og.png'}}
-               style={{width: 200, height: 200}} />
-
+       <MyImage/>
 
       </View>
     );
@@ -59,3 +57,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+class Loading extends React.Component{
+
+  render(){
+    const {onChangeText} = this.props;
+      return (
+       <View><Text>Loading...</Text></View>
+      )
+  }
+}
+
+
+class MyImage extends React.Component{
+
+  render(){
+
+
+      return (
+       <View>
+        <Image source={{uri: 'https://facebook.github.io/react/logo-og.png'}}
+               style={{width: 200, height: 200}} />
+      </View>
+      )
+  }
+}
