@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {sortBy} from 'lodash';
 const util = require('util');
 //import ThirdActivity from './app/ThirdActivity';
+import { AppNavigator } from 'react-navigation';
 
 var list;
 import {
@@ -33,6 +34,28 @@ export default class SecondActivity extends React.Component {
     super(props);
     this.state ={ isLoading: true}
     console.log(key);
+    goToCategoryView = () => {
+    //Replace here push with resetTo
+
+}
+
+    const defaultGetStateForAction = AppNavigator.router.getStateForAction;
+
+    AppNavigator.router.getStateForAction = (action, state) => {
+    const screen = state ? state.routes[state.index] : null;
+    const tab = screen && screen.routes ? screen.routes[screen.index] : null;
+    const tabScreen = tab && tab.routes ? tab.routes[tab.index] : null;
+
+    if (
+        action.type === NavigationActions.BACK &&
+        tab && tab.routeName === 'LogIn' &&
+        tabScreen && tabScreen.routeName === 'events'
+    ) {
+        return null;
+
+    }
+  }
+
     this.removeItem = this.removeItem.bind(this);
     this.searchValue = this.searchValue.bind(this);
     this.onSort = this.onSort.bind(this);

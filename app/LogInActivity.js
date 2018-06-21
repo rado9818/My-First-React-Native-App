@@ -1,5 +1,5 @@
 import React from 'react';
-
+import SecondActivity from './SecondActivity'
 import {
   AppRegistry,
   StyleSheet,
@@ -36,6 +36,7 @@ export default class LogInActivity extends React.Component {
     const { email, password } = this.state;
 
     //alert(email + " " + password);
+    var {navigate} = this.props.navigation;
 
     fetch('https://reqres.in/api/login', {
     method: 'POST',
@@ -49,14 +50,16 @@ export default class LogInActivity extends React.Component {
     }),
     }).then((response) => response.json())
       .then((responseJson) => {
+        console.log(responseJson);
+        console.log(this.props.navigator);
+        console.log(navigate);
+
         if(!responseJson.hasOwnProperty('error')){
-          var {navigate} = this.props.navigation;
           navigate('First');
-          console.log(responseJson);
         }else{
           alert("Error");
         }
-       
+
       })
       .catch((error) => {
         alert(error);
@@ -65,7 +68,7 @@ export default class LogInActivity extends React.Component {
       });
 
   }
- 
+
   render() {
 
 
