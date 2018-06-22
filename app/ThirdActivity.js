@@ -58,15 +58,7 @@ const styles = StyleSheet.create({
   },
 });
 
-class Loading extends React.Component{
 
-  render(){
-    const {onChangeText} = this.props;
-      return (
-       <View><Text>Loading...</Text></View>
-      )
-  }
-}
 
 
 class MyImage extends React.Component{

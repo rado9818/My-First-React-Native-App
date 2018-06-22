@@ -1,10 +1,12 @@
 import React from 'react';
 import {moviesUrl, key} from './Constants';
-import PropTypes from 'prop-types';
+import SearchText from './components/SearchText';
+import TableComponent from './components/TableComponent';
 import {sortBy} from 'lodash';
 const util = require('util');
 //import ThirdActivity from './app/ThirdActivity';
 import { AppNavigator } from 'react-navigation';
+import {BackHandler, BackAndroid} from 'react-native';
 
 var list;
 import {
@@ -17,6 +19,20 @@ import {
    FlatList, ActivityIndicator,
   AsyncStorage} from 'react-native';
 
+var ImagePicker = require('react-native-image-picker');
+
+// More info on all the options is below in the README...just some common use cases shown here
+var options = {
+  title: 'Select Avatar',
+  customButtons: [
+    {name: 'fb', title: 'Choose Photo from Facebook'},
+  ],
+  storageOptions: {
+    skipBackup: true,
+    path: 'images'
+  }
+};
+
 
 function isSearched(searchTerm){
   return function(item){
@@ -27,7 +43,8 @@ function isSearched(searchTerm){
 
 export default class SecondActivity extends React.Component {
   static navigationOptions = {
-    title:"SecondActivity"
+    title:"SecondActivity",
+    headerLeft: null
   };
   //var {navigate}
   constructor(props){
@@ -37,28 +54,22 @@ export default class SecondActivity extends React.Component {
     goToCategoryView = () => {
     //Replace here push with resetTo
 
-}
-
-    const defaultGetStateForAction = AppNavigator.router.getStateForAction;
-
-    AppNavigator.router.getStateForAction = (action, state) => {
-    const screen = state ? state.routes[state.index] : null;
-    const tab = screen && screen.routes ? screen.routes[screen.index] : null;
-    const tabScreen = tab && tab.routes ? tab.routes[tab.index] : null;
-
-    if (
-        action.type === NavigationActions.BACK &&
-        tab && tab.routeName === 'LogIn' &&
-        tabScreen && tabScreen.routeName === 'events'
-    ) {
-        return null;
-
     }
-  }
+
+ 
 
     this.removeItem = this.removeItem.bind(this);
     this.searchValue = this.searchValue.bind(this);
     this.onSort = this.onSort.bind(this);
+  }
+
+  componentWillMount(){
+      BackHandler.addEventListener('hardwareBackPress', function(){
+        BackAndroid.exitApp();
+        return true;
+      }
+    );
+
   }
 
 
@@ -107,6 +118,35 @@ searchValue(event){
   this.setState({dataSource: updatedList});
 }
 
+takePic(){
+     /**
+   * The first arg is the options object for customization (it can also be null or omitted for default options),
+   * The second arg is the callback which sends object: response (more info below in README)
+   */
+  ImagePicker.showImagePicker(options, (response) => {
+    console.log('Response = ', response);
+
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    }
+    else if (response.error) {
+      console.log('ImagePicker Error: ', response.error);
+    }
+    else if (response.customButton) {
+      console.log('User tapped custom button: ', response.customButton);
+    }
+    else {
+      let source = { uri: response.uri };
+
+      // You can also display the image using data:
+      // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+
+      this.setState({
+        avatarSource: source
+      });
+    }
+  });
+}
 
   render() {
   //  console.log("this.props.navigation = "+util.inspect(this.props.navigation, false, null));
@@ -122,9 +162,15 @@ searchValue(event){
           }
           title="Go to scr 2"
         />
+
+         <Button onPress={
+              () => this.takePic
+          }
+          title="Take a pic"
+        />
+
         <SearchText
           onChangeText={this.searchValue}
-
         />
 
         <TableComponent
@@ -143,69 +189,6 @@ searchValue(event){
   //  alert("Hi");
 
   }
-}
-
-
-class SearchText extends React.Component{
-  componentDidMount(){
-    this.input.focus();
-  }
-  render(){
-    const {onChangeText} = this.props;
-
-      return (
-        <TextInput
-          style={{width: 100,height: 40}}
-          placeholder="Search..."
-          onChangeText={onChangeText}
-          ref = {(node) => {this.input = node}}
-        />
-      )
-  }
-}
-
-
-class Loading extends React.Component{
-
-  render(){
-    const {onChangeText} = this.props;
-      return (
-       <View><Text>Loading...</Text></View>
-      )
-  }
-}
-
-
-
-class TableComponent extends React.Component{
-  render(){
-    const {onChangeText, removeItem, state, sortKey, onSort} = this.props;
-      state.dataSource = onSort(state.dataSource, sortKey, false);
-
-      return (
-
-        state.isLoading ? <Loading/> :
-        <FlatList
-          data={state.dataSource}
-          renderItem={({item}) => <View><Text>{item.title}, {item.releaseYear}</Text>
-        <Button title="test" onPress={
-            () => alert(item.title)
-        }/>
-        <Button title="delete"
-        margin="10"
-        onPress={
-            () => removeItem(item.title)
-        }/>
-        </View>}
-          keyExtractor={(item, index) => index}
-        />
-      )
-  }
-}
-
-TableComponent.propTypes = {
-  onChangeText: PropTypes.func,
-  state:PropTypes.object.isRequired
 }
 
 
